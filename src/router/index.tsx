@@ -34,17 +34,10 @@ const AppRouter = () => {
               </Suspense>
             }
           />
+          <Route path={PATH.CREATE_ARTICLE} element={<ArticleWrite />} />
           <Route
             path={PATH.EDIT_ARTICLE(":articleId")}
             element={<ArticleWrite />}
-          />
-          <Route
-            path={PATH.QUESTION(":questionId")}
-            element={<div>question</div>}
-          />
-          <Route
-            path={PATH.EDIT_QUESTION(":questionId")}
-            element={<div>question edit</div>}
           />
           <Route path={PATH.SEARCH} element={<div>search</div>} />
           <Route path={PATH.USER(":userId")} element={<div>user info</div>} />
