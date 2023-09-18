@@ -2,8 +2,9 @@ import { Suspense } from "react";
 
 import { Global } from "@emotion/react";
 
-import Login from "@components/Login";
 import Toaster from "@components/Toaster";
+import AuthErrorBoundary from "@components/_errorBoundaries/AuthErrorBoundary";
+import RootErrorBoundary from "@components/_errorBoundaries/RootErrorBoundary";
 
 import { getGlobalStyles } from "@styles/globalStyles";
 
@@ -17,11 +18,14 @@ function App() {
   return (
     <>
       <Global styles={getGlobalStyles(theme)} />
-      <Suspense fallback={null}>
-        <Login />
-        <AppRouter />
-        <Toaster />
-      </Suspense>
+      <RootErrorBoundary>
+        <AuthErrorBoundary>
+          <Suspense fallback={null}>
+            <AppRouter />
+          </Suspense>
+        </AuthErrorBoundary>
+      </RootErrorBoundary>
+      <Toaster />
     </>
   );
 }

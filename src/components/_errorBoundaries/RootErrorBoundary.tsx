@@ -1,9 +1,9 @@
 import { Component } from "react";
+import { Navigate } from "react-router-dom";
 
-import { AuthError } from "@utils/AuthError";
+import { PATH } from "@constants/index";
 
 interface Props {
-  fallback: React.ReactNode;
   children?: React.ReactNode;
 }
 
@@ -12,7 +12,7 @@ interface State {
   hasError: boolean;
 }
 
-class AuthErrorBoundary extends Component<Props, State> {
+class RootErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false
   };
@@ -25,11 +25,9 @@ class AuthErrorBoundary extends Component<Props, State> {
     if (!this.state.hasError) {
       return this.props.children;
     }
-    if (this.state.error instanceof AuthError) {
-      return this.props.fallback;
-    }
-    throw this.state.error;
+    this.setState({ hasError: false });
+    return <Navigate to={PATH.HOME} />;
   }
 }
 
-export default AuthErrorBoundary;
+export default RootErrorBoundary;
