@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { css } from "@emotion/react";
@@ -9,6 +10,7 @@ import Text from "@components/atoms/Text";
 import IconText from "@components/molecules/IconText";
 
 import { useChannelsQuery } from "@hooks/api/useChannelsQuery";
+import { useUserByTokenQuery } from "@hooks/api/useUserByTokenQuery";
 import { useLoggedIn } from "@hooks/useLoggedIn";
 
 import { useThemeStore } from "@stores/theme.store";
@@ -17,11 +19,13 @@ import { useTokenStore } from "@stores/token.store";
 import { Logo } from "@assets/svg";
 import { Alert, Folder, Home, My, Question, Search } from "@assets/svg";
 
+import { NotiDropdown } from "../NotiDropdown";
 import {
   getSidebarIconText,
   getSidebarLogo,
   getSidebarNav,
   getSidebarText,
+  sidebarIconTextHide,
   sidebarLogo
 } from "./Sidebar.styles";
 import ThemeToggle from "./ThemeToggle";
@@ -43,7 +47,10 @@ const Sidebar = () => {
   const queryClient = useQueryClient();
   const setAccessToken = useTokenStore((state) => state.setAccessToken);
   const channelList = [...useChannelsQuery().channels];
+  const { data: user } = useUserByTokenQuery();
+  const { isLoggedIn } = useLoggedIn();
   const navigate = useNavigate();
+  const [isNotiDropdownOpen, setIsNotiDropdownOpen] = useState(false);
   const navigatePage = (page: string, channelId?: string) => {
     switch (page) {
       case "HOME":
@@ -55,7 +62,7 @@ const Sidebar = () => {
         queryClient.clear();
         return navigate("/");
       case "USER":
-        return navigate("/users/1");
+        return navigate(`/users/${user?._id}`);
       case "CHANNEL":
         console.log(channelId);
         return navigate(`/channels/${channelId}`);
@@ -88,7 +95,6 @@ const Sidebar = () => {
         <div
           css={css`
             margin: 20px 0px 0px 0px;
-            overflow: auto;
             height: calc(100vh - 280px);
           `}>
           <Text size={12} css={getSidebarText(textMargine, textPadding)}>
@@ -136,34 +142,54 @@ const Sidebar = () => {
               size: channelTextSize,
               color: channelColor
             }}
-            css={getSidebarIconText(
-              channelMargine,
-              channelPadding,
-              borderRadius,
-              channelGap,
-              theme
-            )}
+            css={
+              isLoggedIn
+                ? getSidebarIconText(
+                    channelMargine,
+                    channelPadding,
+                    borderRadius,
+                    channelGap,
+                    theme
+                  )
+                : sidebarIconTextHide
+            }
             onClick={() => navigatePage("USER")}
           />
-          <IconText
-            iconValue={{
-              Svg: Alert,
-              size: channelIconSize,
-              fill: channelColor
-            }}
-            textValue={{
-              children: "알림",
-              size: channelTextSize,
-              color: channelColor
-            }}
-            css={getSidebarIconText(
-              channelMargine,
-              channelPadding,
-              borderRadius,
-              channelGap,
-              theme
+          <div
+            css={css`
+              position: relative;
+            `}>
+            <IconText
+              iconValue={{
+                Svg: Alert,
+                size: channelIconSize,
+                fill: channelColor
+              }}
+              textValue={{
+                children: "알림",
+                size: channelTextSize,
+                color: channelColor
+              }}
+              css={
+                isLoggedIn
+                  ? getSidebarIconText(
+                      channelMargine,
+                      channelPadding,
+                      borderRadius,
+                      channelGap,
+                      theme
+                    )
+                  : sidebarIconTextHide
+              }
+              onClick={() => setIsNotiDropdownOpen(true)}
+            />
+            {isLoggedIn && (
+              <NotiDropdown
+                visible={isNotiDropdownOpen}
+                onClose={() => setIsNotiDropdownOpen(false)}
+              />
             )}
-          />
+          </div>
           <Text size={12} css={getSidebarText(textMargine, textPadding)}>
             CHANNELS
           </Text>
@@ -209,7 +235,7 @@ const Sidebar = () => {
               css={css`
                 margin-left: 36px;
               `}>
-              {useLoggedIn().isLoggedIn ? (
+              {isLoggedIn ? (
                 <Button
                   width={buttonWidth}
                   height={buttonHeight}
