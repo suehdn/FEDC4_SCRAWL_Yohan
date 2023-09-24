@@ -1,11 +1,12 @@
-import { Fragment, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 
-import ErrorBoundary from "@components/_errorBoundaries/ErrorBoundary";
+import { css } from "@emotion/react";
+
 import Flex from "@components/atoms/Flex";
 import Text from "@components/atoms/Text";
-import { CardSkeleton } from "@components/organisms/Card";
-import Card from "@components/organisms/Card/Card";
+import { EmptyAlert } from "@components/molecules/EmptyAlert";
+import { CardList } from "@components/organisms/CardList";
 
 import { useArticlesByChannelIdQuery } from "@hooks/api/useArticlesByChannelIdQuery";
 import { useChannelsQuery } from "@hooks/api/useChannelsQuery";
@@ -14,7 +15,6 @@ import { useIntersectionObserver } from "@hooks/useIntersectionObserver";
 import { useThemeStore } from "@stores/theme.store";
 
 import {
-  cardListStyle,
   channelPageHeaderStyle,
   channelPageOuterStyle
 } from "./ChannelPage.styles";
@@ -59,19 +59,15 @@ const ChannelPage = () => {
           {channel?.name}
         </Text>
       </Flex>
-      <Flex gap={30} css={cardListStyle}>
-        {articles?.map((article) => (
-          <Fragment key={article._id}>
-            <ErrorBoundary fallback={null}>
-              <Card article={article} width={300} />
-            </ErrorBoundary>
-          </Fragment>
-        ))}
-        {isFetchingNextPage &&
-          Array(2)
-            .fill(null)
-            .map((_, i) => <CardSkeleton key={i} width={300} />)}
-      </Flex>
+      {articles?.length === 0 && <EmptyAlert message="게시글이 없습니다" />}
+      <div
+        css={css`
+          box-sizing: border-box;
+          padding: 20px 20px 0 0;
+          width: 100%;
+        `}>
+        <CardList articles={articles} isFetchingNext={isFetchingNextPage} />
+      </div>
       <div ref={lastElementRef} />
     </Flex>
   );

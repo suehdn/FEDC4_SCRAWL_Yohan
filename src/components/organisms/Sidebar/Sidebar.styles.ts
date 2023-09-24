@@ -1,5 +1,6 @@
 import { css } from "@emotion/react";
 
+import { WIDTH_MAP } from "@constants/media";
 import { Theme } from "@constants/theme";
 
 const navWidth = "250px";
@@ -12,6 +13,8 @@ const borderRadius = "8px";
 export const getSidebarNav = (theme: Theme) => css`
   margin: 20px;
   width: ${navWidth};
+  display: flex;
+  flex-direction: column;
   height: 100%;
   flex-grow: 1;
   min-height: 531px;
@@ -20,6 +23,25 @@ export const getSidebarNav = (theme: Theme) => css`
   background-color: ${theme.BACKGROUND100};
   position: relative;
   z-index: 10;
+`;
+
+export const getSidebarNavMedia = (sidebarAppearForce: boolean) => css`
+  @media (max-width: ${WIDTH_MAP.sm}px) {
+    transition: transform 0.5s;
+    transform: translate(-200%);
+
+    transform: translate(${sidebarAppearForce ? 0 : -200}%);
+    [class^="css-"][class$="-FloatingButton"] {
+      visibility: visible;
+    }
+  }
+  @media (min-width: ${WIDTH_MAP.sm}px) {
+    transition: transform 0.5s;
+    transform: translate(0%);
+    [class^="css-"][class$="-FloatingButton"] {
+      visibility: hidden;
+    }
+  }
 `;
 
 export const getSidebarLogo = (theme: Theme) => css`
@@ -46,6 +68,16 @@ export const getSidebarIconText = (theme: Theme) => css`
     border-radius: ${borderRadius};
   }
 `;
+export const getSelectedSidebarIconText = (theme: Theme) => css`
+  margin: ${channelMargine};
+  padding: ${channelPadding};
+  gap: ${channelGap};
+  background: ${theme.BACKGROUND200};
+  border-radius: ${borderRadius};
+  :hover {
+    cursor: pointer;
+  }
+`;
 
 export const getSidebarText = () => css`
   margin-left: ${textMargine};
@@ -62,11 +94,51 @@ export const getSidebarFooter = (theme: Theme) => css`
 
 export const sidebarChannelLogin = css`
   overflow: auto;
-  height: calc(90vh - 475px);
+  height: calc(90vh - 420px);
   min-height: 50px;
 `;
 export const sidebarChannelLogout = css`
   overflow: auto;
-  height: calc(90vh - 375px);
+  height: calc(90vh - 325px);
   min-height: 150px;
+`;
+export const getUserInfoStyle = (theme: Theme) => css`
+  margin: ${channelMargine};
+  padding: ${channelPadding};
+  color: ${theme.TEXT300};
+  gap: ${channelGap};
+  :hover {
+    cursor: pointer;
+    background: ${theme.BACKGROUND200};
+    border-radius: ${borderRadius};
+  }
+`;
+export const getSelectedUserInfoStyle = (theme: Theme) => css`
+  margin: ${channelMargine};
+  padding: ${channelPadding};
+  color: ${theme.TEXT300};
+  gap: ${channelGap};
+  background: ${theme.BACKGROUND200};
+  border-radius: ${borderRadius};
+  :hover {
+    cursor: pointer;
+  }
+`;
+export const getSidebarAppearButton = (sidebarAppearForce: boolean) => css`
+  position: absolute;
+  top: 15px;
+  z-index: 1;
+  @media (max-width: ${WIDTH_MAP.sm}px) {
+    [class^="css-"][class$="-FloatingButton"] {
+      visibility: ${sidebarAppearForce ? "hidden" : "visible"};
+    }
+  }
+  @media (min-width: ${WIDTH_MAP.sm}px) {
+    [class^="css-"][class$="-FloatingButton"] {
+      visibility: hidden;
+    }
+  }
+`;
+export const sidebarAppearButtonRtl = css`
+  margin-left: 30px;
 `;

@@ -3,11 +3,11 @@ import IconText from "@components/molecules/IconText";
 
 import { useChannelsQuery } from "@hooks/api/useChannelsQuery";
 
+import { CHANNEL_MAP } from "@constants/channel";
 import { Theme } from "@constants/theme";
 
-import { Folder, Question } from "@assets/svg";
-
 import {
+  getSelectedSidebarIconText,
   getSidebarIconText,
   getSidebarText,
   sidebarChannelLogin,
@@ -20,13 +20,15 @@ type SidebarChannelsProps = {
   channelIconSize: number;
   channelTextSize: number;
   isLoggedIn: boolean;
+  myLocation: string;
 };
 const SidebarChannels = ({
   theme,
   navigatePage,
   channelIconSize,
   channelTextSize,
-  isLoggedIn
+  isLoggedIn,
+  myLocation
 }: SidebarChannelsProps) => {
   const channelColor = theme.TEXT300;
   const channelList = [...useChannelsQuery().channels];
@@ -42,7 +44,7 @@ const SidebarChannels = ({
             <IconText
               key={_id}
               iconValue={{
-                Svg: name === "질문/답변" ? Question : Folder,
+                Svg: CHANNEL_MAP[_id].Svg,
                 size: channelIconSize,
                 fill: channelColor
               }}
@@ -51,7 +53,11 @@ const SidebarChannels = ({
                 size: channelTextSize,
                 color: channelColor
               }}
-              css={getSidebarIconText(theme)}
+              css={
+                myLocation.includes(_id)
+                  ? getSelectedSidebarIconText(theme)
+                  : getSidebarIconText(theme)
+              }
               onClick={() => navigatePage("CHANNEL", _id)}
             />
           );

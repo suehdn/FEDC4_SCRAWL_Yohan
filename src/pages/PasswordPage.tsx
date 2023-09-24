@@ -1,4 +1,9 @@
-import { ChangeEventHandler, useEffect, useState } from "react";
+import {
+  ChangeEventHandler,
+  KeyboardEventHandler,
+  useEffect,
+  useState
+} from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -19,6 +24,7 @@ import { DOMAIN } from "@constants/api";
 import { passwordPattern } from "@constants/regex";
 
 import { testRegex } from "@utils/testRegEx";
+import withEnter from "@utils/withEnter";
 
 import { Logo } from "@assets/svg";
 
@@ -69,6 +75,13 @@ const PasswordPage = () => {
       return;
     }
   };
+
+  const handleUpdatePasswordWithEnter: KeyboardEventHandler<HTMLElement> = (
+    e
+  ) => {
+    withEnter(e, () => handleUpdatePassword());
+  };
+
   const handleUpdateForm: ChangeEventHandler<HTMLInputElement> = (e) => {
     const { name, value } = e.target;
     setForm((form) => ({ ...form, [name]: value }));
@@ -80,6 +93,7 @@ const PasswordPage = () => {
 
   return (
     <Flex
+      onKeyUp={handleUpdatePasswordWithEnter}
       justify="center"
       align="center"
       css={css`
@@ -97,11 +111,16 @@ const PasswordPage = () => {
           gap: 20px;
           cursor: pointer;
         `}>
-        <IconText
-          onClick={handleMoveHome}
-          iconValue={{ Svg: Logo, size: 80, fill: theme.TEXT300 }}
-          textValue={{ children: "괴발개발", size: 48, color: theme.TEXT300 }}
-        />
+        <Flex>
+          <IconText
+            css={css`
+              gap: 10px;
+            `}
+            onClick={handleMoveHome}
+            iconValue={{ Svg: Logo, size: 64, fill: theme.TEXT300 }}
+            textValue={{ children: "괴발개발", size: 48, color: theme.TEXT300 }}
+          />
+        </Flex>
         <Flex
           justify="center"
           align="center"
@@ -177,11 +196,7 @@ const PasswordPage = () => {
                 onChange={handleUpdateForm}
               />
             </Flex>
-            <Button
-              width="100%"
-              height="35px"
-              onClick={handleUpdatePassword}
-              color={theme.TEXT100}>
+            <Button width="100%" height="35px" onClick={handleUpdatePassword}>
               비밀번호 변경하기
             </Button>
           </Flex>

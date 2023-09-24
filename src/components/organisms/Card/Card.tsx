@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { css } from "@emotion/react";
 
 import Flex from "@components/atoms/Flex";
+import Icon from "@components/atoms/Icon";
 import Image from "@components/atoms/Image";
 import UserInfo from "@components/molecules/UserInfo";
 
@@ -10,27 +11,24 @@ import { useThemeStore } from "@stores/theme.store";
 
 import { Article } from "@type/models/Article";
 
-import { MIN_CARD_WIDTH } from "@constants/card";
 import { PATH } from "@constants/index";
 
+import { NoImage } from "@assets/svg";
 import placeholderUser from "@assets/svg/placeholderUser.svg";
 
 import { cardImgStyle, getCardOuterStyle, userInfoStyle } from "./Card.styles";
 import CardFooter from "./CardFooter";
 
 type CardProps = {
-  width: number;
   article: Article;
 };
 
-const Card = ({ article, width: w }: CardProps) => {
+const Card = ({ article }: CardProps) => {
   const { theme } = useThemeStore();
   const navigate = useNavigate();
 
-  const width = Math.max(w, MIN_CARD_WIDTH);
-
   return (
-    <Flex css={getCardOuterStyle(theme, width)} direction="column" gap={4}>
+    <Flex css={getCardOuterStyle(theme)} direction="column" gap={4}>
       <UserInfo
         imgWidth={24}
         imageSrc={article.author.image || placeholderUser}
@@ -42,8 +40,8 @@ const Card = ({ article, width: w }: CardProps) => {
 
       {article.image ? (
         <Image
-          width={width}
-          height={width * 0.6}
+          width={0}
+          height={0}
           src={article.image}
           alt="contentImg"
           mode="cover"
@@ -51,14 +49,17 @@ const Card = ({ article, width: w }: CardProps) => {
           onClick={() => navigate(PATH.ARTICLE(article._id))}
         />
       ) : (
-        <div
+        <Flex
+          align="center"
+          justify="center"
           css={css`
-            width: ${width}px;
-            height: ${width * 0.6}px;
+            width: 100%;
+            aspect-ratio: 16 / 10;
             cursor: pointer;
           `}
-          onClick={() => navigate(PATH.ARTICLE(article._id))}
-        />
+          onClick={() => navigate(PATH.ARTICLE(article._id))}>
+          <Icon Svg={NoImage} size={70} fill={theme.BACKGROUND300} />
+        </Flex>
       )}
 
       <CardFooter article={article} />

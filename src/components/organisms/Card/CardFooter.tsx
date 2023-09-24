@@ -16,7 +16,8 @@ import {
 
 import { PATH } from "@constants/index";
 
-import { htmlToPlainText } from "@utils/htmlToPlainText";
+import { createdAtToString } from "@utils/createdAtToString";
+import { markdownToPlainText } from "@utils/markdownToPlainText";
 
 import { Like, Message } from "@assets/svg";
 
@@ -53,7 +54,7 @@ const CardFooter = ({ article }: CardFooterProps) => {
           {title}
         </Text>
         <Text size={14} css={contentStyle}>
-          <div dangerouslySetInnerHTML={{ __html: htmlToPlainText(html) }} />
+          {markdownToPlainText(html)}
         </Text>
       </Flex>
 
@@ -66,7 +67,7 @@ const CardFooter = ({ article }: CardFooterProps) => {
       <Text
         size={12}
         color={theme.type === "DARK" ? theme.TEXT100 : theme.TEXT300}>
-        {new Date(article.createdAt).toLocaleDateString()}
+        {createdAtToString(new Date(article.createdAt))}
       </Text>
 
       <Flex

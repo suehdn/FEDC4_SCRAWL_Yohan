@@ -9,7 +9,8 @@ export const useArticleDeleteMutation = () => {
     mutationFn: deleteArticle,
     onSuccess: (article) =>
       Promise.all([
-        queryClient.invalidateQueries(["articles", article.channel]),
+        queryClient.resetQueries(["articles", article.channel]),
+        queryClient.invalidateQueries(["article", article._id]),
         queryClient.invalidateQueries(["user-by-token"])
       ])
   });
