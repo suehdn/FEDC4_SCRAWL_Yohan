@@ -1,4 +1,9 @@
-import { ChangeEventHandler, useEffect, useState } from "react";
+import {
+  ChangeEventHandler,
+  KeyboardEventHandler,
+  useEffect,
+  useState
+} from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -25,6 +30,7 @@ import {
 } from "@constants/regex";
 
 import { testRegex } from "@utils/testRegEx";
+import withEnter from "@utils/withEnter";
 
 import { Logo } from "@assets/svg";
 
@@ -32,6 +38,7 @@ type FormState = {
   email: string;
   fullName: string;
   password: string;
+  passwordConfirm: string;
 };
 
 const SignUpPage = () => {
@@ -41,7 +48,8 @@ const SignUpPage = () => {
   const [form, setForm] = useState<FormState>({
     email: "",
     fullName: "",
-    password: ""
+    password: "",
+    passwordConfirm: ""
   });
   const navigate = useNavigate();
   const { isLoggedIn } = useLoggedIn();
@@ -75,6 +83,10 @@ const SignUpPage = () => {
       toast.error("패스워드 형식이 맞지 않습니다.");
       return;
     }
+    if (form.password !== form.passwordConfirm) {
+      toast.error("패스워드와 패스워드 확인이 일치하지 않습니다.");
+      return;
+    }
     try {
       const token = await signUp(form);
       queryClient.clear();
@@ -85,12 +97,18 @@ const SignUpPage = () => {
       return;
     }
   };
+
+  const handleSignUpWithEnter: KeyboardEventHandler<HTMLElement> = (e) => {
+    withEnter(e, () => handleSignUp(form));
+  };
+
   const handleMoveHome = () => {
     navigate(DOMAIN.HOME);
   };
 
   return (
     <Flex
+      onKeyUp={handleSignUpWithEnter}
       justify="center"
       align="center"
       css={css`
@@ -108,11 +126,16 @@ const SignUpPage = () => {
           gap: 20px;
           cursor: pointer;
         `}>
-        <IconText
-          onClick={handleMoveHome}
-          iconValue={{ Svg: Logo, size: 80, fill: theme.TEXT300 }}
-          textValue={{ children: "괴발개발", size: 48, color: theme.TEXT300 }}
-        />
+        <Flex>
+          <IconText
+            css={css`
+              gap: 10px;
+            `}
+            onClick={handleMoveHome}
+            iconValue={{ Svg: Logo, size: 64, fill: theme.TEXT300 }}
+            textValue={{ children: "괴발개발", size: 48, color: theme.TEXT300 }}
+          />
+        </Flex>
         <Flex
           justify="center"
           align="center"
@@ -218,11 +241,39 @@ const SignUpPage = () => {
                 onChange={handleUpdateForm}
               />
             </Flex>
+            <Flex
+              direction="column"
+              justify="space-between"
+              align="start"
+              css={css`
+                width: 272px;
+                height: 62px;
+              `}>
+              <Flex
+                css={css`
+                  color: ${theme.TEXT600};
+                `}>
+                비밀번호 확인
+              </Flex>
+              <Input
+                placeholder="6자 이상(알파벳, 숫자 필수)"
+                width="100%"
+                height="35px"
+                fontSize="14px"
+                background={theme.BACKGROUND200}
+                color={theme.TEXT300}
+                border={`1px solid ${theme.BORDER100}`}
+                borderRadius="4px"
+                type="password"
+                value={form.passwordConfirm}
+                name="passwordConfirm"
+                onChange={handleUpdateForm}
+              />
+            </Flex>
             <Button
               width="100%"
               height="35px"
-              onClick={() => handleSignUp(form)}
-              color={theme.TEXT100}>
+              onClick={() => handleSignUp(form)}>
               회원가입
             </Button>
           </Flex>

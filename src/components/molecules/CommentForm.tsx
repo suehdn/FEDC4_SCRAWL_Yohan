@@ -1,39 +1,55 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 import { css } from "@emotion/react";
+import MDEditor from "@uiw/react-md-editor";
 
 import Button from "@components/atoms/Button";
 import Flex from "@components/atoms/Flex";
 import Image from "@components/atoms/Image";
-import ArticleWriteEditor from "@components/organisms/ArticleWrite/ArticleWriteEditor";
 
 import { useCommentCreateMutation } from "@hooks/api/useCommentCreateMutation";
+import { useNotificationCreateMutation } from "@hooks/api/useNotificationCreateMutation";
 import { useUserByTokenQuery } from "@hooks/api/useUserByTokenQuery";
 
+import { getEditorStyle } from "@styles/getEditorStyles";
+
 import { useThemeStore } from "@stores/theme.store";
+
+import { Article } from "@type/models/Article";
 
 import placeholderUser from "@assets/svg/placeholderUser.svg";
 
 type CommentFormProps = {
   width: string;
-  articleId: string;
+  article: Article;
 };
 
-const CommentForm = ({ width, articleId }: CommentFormProps) => {
+const CommentForm = ({ width, article }: CommentFormProps) => {
   const [comment, setComment] = useState("");
   const theme = useThemeStore((state) => state.theme);
   const { mutate: commentCreateMutate } = useCommentCreateMutation();
+  const { mutate: notificationCreateMutate } = useNotificationCreateMutation();
 
   const { data } = useUserByTokenQuery();
 
-  const handleUpdateCommentText = (value: string) => {
-    setComment(value);
-  };
   const handleSubmitComment = () => {
+    if (comment === "") {
+      toast.error("댓글에 내용을 입력해주세요.");
+      return;
+    }
     commentCreateMutate(
-      { comment, postId: articleId },
+      { comment, postId: article._id },
       {
-        onSuccess: () => setComment("")
+        onSuccess: (newComment) => {
+          setComment("");
+          notificationCreateMutate({
+            notificationType: "COMMENT",
+            notificationTypeId: newComment._id,
+            postId: newComment.post,
+            userId: article.author._id
+          });
+        }
       }
     );
   };
@@ -44,7 +60,8 @@ const CommentForm = ({ width, articleId }: CommentFormProps) => {
       align="center"
       css={css`
         width: ${width};
-        height: 144px;
+        padding: 20px 0;
+        height: 100%;
         border-radius: 8px;
         box-shadow: ${theme.SHADOW};
         background: ${theme.BACKGROUND100};
@@ -52,19 +69,12 @@ const CommentForm = ({ width, articleId }: CommentFormProps) => {
         margin-top: 20px;
       `}>
       <Flex
-        justify="center"
-        align="center"
         css={css`
           width: 95%;
+          height: 100%;
           gap: 20px;
-          height: 96px;
         `}>
-        <Flex
-          direction={"column"}
-          justify={"start"}
-          css={css`
-            height: 100%;
-          `}>
+        <Flex direction={"column"} justify={"space-between"} css={css``}>
           <Image
             src={(data && data?.image) || placeholderUser}
             width={40}
@@ -76,27 +86,27 @@ const CommentForm = ({ width, articleId }: CommentFormProps) => {
             alt={"이미지가 없습니다."}
           />
         </Flex>
-        <ArticleWriteEditor
-          stateChange={(value) => handleUpdateCommentText(value)}
-          width="75%"
+        <MDEditor
+          data-color-mode={theme.type === "LIGHT" ? "light" : "dark"}
+          preview="live"
+          height={100}
+          highlightEnable={false}
+          value={comment}
+          onChange={(str) => setComment(str || "")}
+          css={getEditorStyle(theme)}
         />
-        <Flex
-          direction={"column"}
-          justify={"end"}
+        <Button
+          onClick={handleSubmitComment}
+          width={"106px"}
+          height={"48px"}
+          fontSize={"16px"}
+          background={theme.PRIMARY}
+          borderRadius={"8px"}
           css={css`
-            height: 100%;
+            align-self: self-end;
           `}>
-          <Button
-            onClick={handleSubmitComment}
-            width={"106px"}
-            height={"48px"}
-            fontSize={"16px"}
-            color={theme.TEXT100}
-            background={theme.PRIMARY}
-            borderRadius={"8px"}>
-            댓글 쓰기
-          </Button>
-        </Flex>
+          댓글 쓰기
+        </Button>
       </Flex>
     </Flex>
   );
