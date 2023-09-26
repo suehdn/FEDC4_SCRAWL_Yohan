@@ -4,10 +4,10 @@ import {
   useEffect,
   useState
 } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 
 import { css } from "@emotion/react";
-import { useQueryClient } from "@tanstack/react-query";
 
 import Button from "@components/atoms/Button";
 import Flex from "@components/atoms/Flex";
@@ -36,7 +36,6 @@ type passwordFormState = {
 const PasswordPage = () => {
   const userPasswordUpdate = useUserPasswordUpdateMutation();
   const theme = useThemeStore((state) => state.theme);
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [form, setForm] = useState<passwordFormState>({
     password: "",
@@ -50,11 +49,11 @@ const PasswordPage = () => {
       navigate(DOMAIN.HOME, { replace: true });
       return;
     }
-  }, []);
+  }, [isLoggedIn, navigate]);
 
   const handleUpdatePassword = () => {
     if (form.password === "" || form.passwordConfirm === "") {
-      scrawlToast.error("비밀번호 혹은 비밀번호 확인이 입력되지 않았습니다.");
+      scrawlToast.error("모든 입력이 완료되지 않았습니다.");
       return;
     }
     if (form.password !== form.passwordConfirm) {
@@ -65,16 +64,7 @@ const PasswordPage = () => {
       scrawlToast.error("패스워드 형식이 맞지 않습니다.");
       return;
     }
-
-    try {
-      userPasswordUpdate.mutate(form);
-      queryClient.clear();
-      navigate(DOMAIN.HOME);
-      scrawlToast.success("비빌번호 변경에 성공했습니다.");
-    } catch (e) {
-      scrawlToast.error("비밀번호 변경 중 오류가 발생하였습니다.");
-      return;
-    }
+    userPasswordUpdate.mutate(form);
   };
 
   const handleUpdatePasswordWithEnter: KeyboardEventHandler<HTMLElement> = (
@@ -102,6 +92,9 @@ const PasswordPage = () => {
         height: 100vh;
         background: ${theme.BACKGROUND200};
       `}>
+      <Helmet key={location.pathname}>
+        <title>비밀번호 변경</title>
+      </Helmet>
       <Flex
         direction="column"
         justify="center"
